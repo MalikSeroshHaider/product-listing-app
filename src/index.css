@@ -53,22 +53,20 @@ body {
 .page-content {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 1.5rem;
+  padding: 1rem 1.25rem;
   width: 100%;
   flex: 1;
 }
 
 .toolbar {
   display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  margin-bottom: 0.5rem;
+  gap: 16px;
+  margin-bottom: 12px;
 }
 
 .toolbar-controls {
   display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
+  gap: 16px;
 }
 
 .result-count {
@@ -95,16 +93,26 @@ body {
   background: var(--accent-color-hover);
 }
 
-@media (min-width: 640px) {
+@media (max-width: 768px) {
   .toolbar {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .toolbar-controls {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .toolbar > *,
+  .toolbar-controls > * {
+    width: 100%;
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 768px) {
   .page-content {
-    padding: 1rem;
+    padding: 12px;
   }
 }
+
