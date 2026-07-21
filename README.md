@@ -83,6 +83,9 @@ drop-in change — `Home.jsx` already isolates that piece of state.
 2. Import the repo in Vercel → Framework preset: **Vite**.
 3. Build command: `npm run build`, Output directory: `dist`. Deploy.
 
+## Live Demo 
+https://product-listing-app-ebon-three.vercel.app/
+
 **Netlify:**
 1. Push this repo to GitHub.
 2. New site from Git → Build command: `npm run build`, Publish directory: `dist`.
@@ -95,3 +98,12 @@ drop-in change — `Home.jsx` already isolates that piece of state.
 - Discounted price is computed as `price - (price * discountPercentage / 100)`.
 - Favorites and the selected theme persist in `localStorage`, so they survive
   a page refresh.
+## ScreenShots
+## Home Page
+![Homepage](images/Homepage.png)
+
+## Product Selectio
+![Product Selection](images/Selection.png)
+
+## Dark Theme
+![Dark Theme](images/DarkTheme.png)
