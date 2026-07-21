@@ -100,10 +100,10 @@ https://product-listing-app-ebon-three.vercel.app/
   a page refresh.
 ## ScreenShots
 ## Home Page
-![Homepage](images/Homepage.png)
+![Homepage](public/images/Homepage.png)
 
 ## Product Selectio
-![Product Selection](images/Selection.png)
+![Product Selection](public/images/Selection.png)
 
 ## Dark Theme
-![Dark Theme](images/DarkTheme.png)
+![Dark Theme](public/images/Dark%20Theme.png)
