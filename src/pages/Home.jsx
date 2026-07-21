@@ -8,9 +8,11 @@ import ProductGrid from "../components/ProductGrid";
 import ProductModal from "../components/ProductModal";
 import Loader from "../components/Loader";
 import ErrorMessage from "../components/ErrorMessage";
+import Pagination from "../components/Pagination";
 
 const FAVORITES_KEY = "product-hub-favorites";
 const THEME_KEY = "product-hub-theme";
+const PRODUCTS_PER_PAGE = 12;
 
 function Home() {
   const [products, setProducts] = useState([]);
@@ -22,6 +24,7 @@ function Home() {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [sortOption, setSortOption] = useState(SORT_OPTIONS.DEFAULT);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const [favorites, setFavorites] = useState(() => {
     try {
@@ -114,6 +117,22 @@ function Home() {
     return result;
   }, [products, searchTerm, selectedCategory, sortOption]);
 
+useEffect(() => {
+  setCurrentPage(1);
+}, [searchTerm, selectedCategory, sortOption]);
+
+const totalPages = Math.max(1, Math.ceil(visibleProducts.length / PRODUCTS_PER_PAGE));
+
+const pagedProducts = useMemo(() => {
+  const start = (currentPage - 1) * PRODUCTS_PER_PAGE;
+  return visibleProducts.slice(start, start + PRODUCTS_PER_PAGE);
+}, [visibleProducts, currentPage]);
+
+function handlePageChange(page) {
+  setCurrentPage(page);
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
   return (
     <div className="page">
       <Header
@@ -148,12 +167,14 @@ function Home() {
         {!loading && error && <ErrorMessage message={error} onRetry={loadData} />}
 
         {!loading && !error && (
-          <ProductGrid
-            products={visibleProducts}
+          <><ProductGrid
+            products={pagedProducts}
             favorites={favorites}
             onToggleFavorite={toggleFavorite}
-            onViewDetails={setSelectedProduct}
-          />
+            onViewDetails={setSelectedProduct} /><Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange} /></>
         )}
       </main>
 
