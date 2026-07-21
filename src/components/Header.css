@@ -1,0 +1,60 @@
+.app-header {
+  background: var(--header-bg);
+  border-bottom: 1px solid var(--border-color);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.app-header-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.app-title {
+  font-size: 1.4rem;
+  margin: 0;
+  color: var(--text-color);
+}
+
+.app-title span {
+  color: var(--accent-color);
+}
+
+.app-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.favorites-badge {
+  font-size: 0.9rem;
+  background: var(--chip-bg);
+  padding: 0.4rem 0.75rem;
+  border-radius: 999px;
+}
+
+.theme-toggle {
+  border: 1px solid var(--border-color);
+  background: var(--card-bg);
+  color: var(--text-color);
+  padding: 0.4rem 0.75rem;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.theme-toggle:hover {
+  border-color: var(--accent-color);
+}
+
+@media (max-width: 480px) {
+  .app-title {
+    font-size: 1.15rem;
+  }
+}
