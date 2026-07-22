@@ -1,7 +1,9 @@
 .category-filter {
   display: flex;
+  flex: 1;
   align-items: center;
   gap: 0.5rem;
+  width: 100%;
 }
 
 .category-label,
@@ -40,5 +42,33 @@
   .toolbar-controls {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .category-filter {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .category-label,
+  .sort-label {
+    margin-bottom: 0.35rem;
+  }
+
+  .category-select,
+  .sort-select {
+    width: 100%;
+    box-sizing: border-box;
+  }
+}
+
+@media (max-width: 768px) {
+  .category-filter {
+    width: 100%;
+  }
+
+  .category-select,
+  .sort-select {
+    width: 100%;
+    height: 46px;
   }
 }
