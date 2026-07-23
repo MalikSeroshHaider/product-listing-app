@@ -7,7 +7,19 @@ function formatLabel(slug) {
     .join(" ");
 }
 
-function CategoryFilter({ categories, selectedCategory, onSelectCategory }) {
+/**
+ * `categoryCounts` is a { [slug]: count } map built from the full
+ * product list (before category filtering is applied) so counts stay
+ * accurate as search/price/rating filters change. `totalCount` is the
+ * count for "All Categories".
+ */
+function CategoryFilter({
+  categories,
+  selectedCategory,
+  onSelectCategory,
+  categoryCounts = {},
+  totalCount = 0,
+}) {
   return (
     <div className="category-filter">
       <label htmlFor="category-select" className="category-label">
@@ -19,10 +31,10 @@ function CategoryFilter({ categories, selectedCategory, onSelectCategory }) {
         value={selectedCategory}
         onChange={(e) => onSelectCategory(e.target.value)}
       >
-        <option value="all">All Categories</option>
+        <option value="all">All Categories ({totalCount})</option>
         {categories.map((category) => (
           <option key={category.slug} value={category.slug}>
-            {formatLabel(category.name)}
+            {formatLabel(category.name)} ({categoryCounts[category.slug] || 0})
           </option>
         ))}
       </select>

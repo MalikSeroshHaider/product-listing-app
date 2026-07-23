@@ -1,0 +1,57 @@
+.compare-table-wrap {
+  overflow-x: auto;
+  background: var(--card-bg);
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+}
+
+.compare-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 500px;
+}
+
+.compare-table th,
+.compare-table td {
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid var(--border-color);
+  text-align: left;
+  font-size: 0.88rem;
+  color: var(--text-color);
+}
+
+.compare-table th {
+  color: var(--text-muted);
+  white-space: nowrap;
+  width: 130px;
+}
+
+.compare-table tr:last-child th,
+.compare-table tr:last-child td {
+  border-bottom: none;
+}
+
+.compare-image-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.compare-image-cell img {
+  width: 90px;
+  height: 90px;
+  object-fit: contain;
+  background: var(--thumb-bg);
+  border-radius: 8px;
+  padding: 0.4rem;
+}
+
+.compare-remove-btn {
+  border: none;
+  background: transparent;
+  color: var(--danger-color);
+  font-size: 0.75rem;
+  cursor: pointer;
+  text-decoration: underline;
+}

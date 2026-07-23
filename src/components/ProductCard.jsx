@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import "./ProductCard.css";
 
 function getDiscountedPrice(price, discountPercentage) {
@@ -5,8 +6,16 @@ function getDiscountedPrice(price, discountPercentage) {
   return discounted.toFixed(2);
 }
 
-function ProductCard({ product, isFavorite, onToggleFavorite, onViewDetails }) {
+function ProductCard({
+  product,
+  isFavorite,
+  onToggleFavorite,
+  onAddToCart,
+  isComparing,
+  onToggleCompare,
+}) {
   const {
+    id,
     title,
     category,
     price,
@@ -22,10 +31,23 @@ function ProductCard({ product, isFavorite, onToggleFavorite, onViewDetails }) {
   return (
     <div className="product-card">
       <div className="product-thumb-wrap">
-        <img src={thumbnail} alt={title} className="product-thumb" loading="lazy" />
+        <Link to={`/products/${id}`}>
+          <img
+            src={thumbnail}
+            alt={title}
+            className="product-thumb"
+            loading="lazy"
+            width="230"
+            height="170"
+            onError={(e) => {
+              e.currentTarget.src =
+                "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='230' height='170'><rect width='100%25' height='100%25' fill='%23e3e5e9'/></svg>";
+            }}
+          />
+        </Link>
         <button
           className={`fav-btn ${isFavorite ? "fav-btn-active" : ""}`}
-          onClick={() => onToggleFavorite(product.id)}
+          onClick={() => onToggleFavorite(id)}
           aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
         >
           {isFavorite ? "❤️" : "🤍"}
@@ -55,9 +77,27 @@ function ProductCard({ product, isFavorite, onToggleFavorite, onViewDetails }) {
           </span>
         </div>
 
-        <button className="btn btn-primary btn-block" onClick={() => onViewDetails(product)}>
-          View Details
-        </button>
+        <div className="product-card-actions">
+          <button
+            className="btn btn-primary btn-block"
+            onClick={() => onAddToCart(product)}
+            disabled={!inStock}
+          >
+            {inStock ? "Add to Cart" : "Out of Stock"}
+          </button>
+          <div className="product-card-actions-row">
+            <Link to={`/products/${id}`} className="btn btn-secondary btn-block">
+              View Details
+            </Link>
+            <button
+              className={`btn btn-compare ${isComparing ? "btn-compare-active" : ""}`}
+              onClick={() => onToggleCompare(product)}
+              title={isComparing ? "Remove from comparison" : "Add to comparison"}
+            >
+              {isComparing ? "✓ Compare" : "+ Compare"}
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );

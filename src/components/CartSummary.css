@@ -1,0 +1,41 @@
+.cart-summary {
+  background: var(--card-bg);
+  border-radius: 12px;
+  padding: 1.25rem;
+  border: 1px solid var(--border-color);
+  align-self: start;
+  position: sticky;
+  top: 90px;
+}
+
+.cart-summary h3 {
+  margin: 0 0 1rem;
+  color: var(--text-color);
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin-bottom: 0.6rem;
+}
+
+.summary-discount {
+  color: var(--success-color);
+}
+
+.summary-shipping-note {
+  font-size: 0.78rem;
+  color: var(--accent-color);
+  margin: -0.25rem 0 0.75rem;
+}
+
+.summary-total {
+  border-top: 1px solid var(--border-color);
+  padding-top: 0.75rem;
+  margin-top: 0.75rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-color);
+}

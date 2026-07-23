@@ -1,16 +1,21 @@
 import ProductCard from "./ProductCard";
+import EmptyState from "./EmptyState";
 import "./ProductGrid.css";
 
-function ProductGrid({ products, favorites, onToggleFavorite, onViewDetails }) {
+function ProductGrid({
+  products,
+  favorites,
+  onToggleFavorite,
+  onAddToCart,
+  compareIds,
+  onToggleCompare,
+}) {
   if (products.length === 0) {
     return (
-      <div className="empty-state">
-        <p className="empty-icon" aria-hidden="true">
-          🔎
-        </p>
-        <h3>No products found</h3>
-        <p>Try changing your search or filters.</p>
-      </div>
+      <EmptyState
+        title="No products found"
+        message="Try changing your search or filters."
+      />
     );
   }
 
@@ -22,7 +27,9 @@ function ProductGrid({ products, favorites, onToggleFavorite, onViewDetails }) {
           product={product}
           isFavorite={favorites.includes(product.id)}
           onToggleFavorite={onToggleFavorite}
-          onViewDetails={onViewDetails}
+          onAddToCart={onAddToCart}
+          isComparing={compareIds.includes(product.id)}
+          onToggleCompare={onToggleCompare}
         />
       ))}
     </div>

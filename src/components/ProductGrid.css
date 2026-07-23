@@ -3,19 +3,3 @@
   grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
   gap: 1.25rem;
 }
-
-.empty-state {
-  text-align: center;
-  padding: 4rem 1rem;
-  color: var(--text-muted);
-}
-
-.empty-icon {
-  font-size: 2.5rem;
-  margin: 0 0 0.5rem;
-}
-
-.empty-state h3 {
-  color: var(--text-color);
-  margin-bottom: 0.25rem;
-}

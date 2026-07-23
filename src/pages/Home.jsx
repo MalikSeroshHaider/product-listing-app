@@ -1,88 +1,59 @@
-import { useEffect, useMemo, useState } from "react";
-import { fetchProducts, fetchCategories } from "../services/productApi";
-import Header from "../components/Header";
+import { useMemo } from "react";
+import { useSearchParams } from "react-router-dom";
+import { useProducts } from "../hooks/useProducts";
+import { useDebounce } from "../hooks/useDebounce";
+import { useLocalStorage } from "../hooks/useLocalStorage";
+import { useRecentlyViewed } from "../hooks/useRecentlyViewed";
 import SearchBar from "../components/SearchBar";
 import CategoryFilter from "../components/CategoryFilter";
 import SortDropdown, { SORT_OPTIONS } from "../components/SortDropdown";
+import RatingFilter from "../components/RatingFilter";
+import PriceRangeFilter from "../components/PriceRangeFilter";
+import ProductsPerPage from "../components/ProductsPerPage";
 import ProductGrid from "../components/ProductGrid";
-import ProductModal from "../components/ProductModal";
+import ProductStatistics from "../components/ProductStatistics";
 import Loader from "../components/Loader";
 import ErrorMessage from "../components/ErrorMessage";
 import Pagination from "../components/Pagination";
+import { exportProductsToCsv } from "../utils/csvExport";
 
-const FAVORITES_KEY = "product-hub-favorites";
-const THEME_KEY = "product-hub-theme";
-const PRODUCTS_PER_PAGE = 12;
+function Home({ cart, favorites, comparison }) {
+  const { products, categories, loading, error, retry } = useProducts();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [layout, setLayout] = useLocalStorage("product-hub-layout", "grid");
+  const { recentIds, clearRecentlyViewed } = useRecentlyViewed();
 
-function Home() {
-  const [products, setProducts] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  // All filter/sort/page state lives in the URL, so filtered views are
+  // shareable and survive a refresh (Task 10: URL Search Parameters).
+  const searchTerm = searchParams.get("search") || "";
+  const selectedCategory = searchParams.get("category") || "all";
+  const sortOption = searchParams.get("sort") || SORT_OPTIONS.DEFAULT;
+  const ratingFilter = searchParams.get("rating") || "all";
+  const minPrice = searchParams.has("minPrice") ? Number(searchParams.get("minPrice")) : null;
+  const maxPrice = searchParams.has("maxPrice") ? Number(searchParams.get("maxPrice")) : null;
+  const perPage = Number(searchParams.get("perPage")) || 12;
+  const currentPage = Number(searchParams.get("page")) || 1;
 
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("all");
-  const [sortOption, setSortOption] = useState(SORT_OPTIONS.DEFAULT);
-  const [selectedProduct, setSelectedProduct] = useState(null);
-  const [currentPage, setCurrentPage] = useState(1);
+  const debouncedSearch = useDebounce(searchTerm, 400);
 
-  const [favorites, setFavorites] = useState(() => {
-    try {
-      const stored = localStorage.getItem(FAVORITES_KEY);
-      return stored ? JSON.parse(stored) : [];
-    } catch {
-      return [];
-    }
-  });
-
-  const [isDarkMode, setIsDarkMode] = useState(() => {
-    return localStorage.getItem(THEME_KEY) === "dark";
-  });
-
-  async function loadData() {
-    setLoading(true);
-    setError(null);
-    try {
-      const [productList, categoryList] = await Promise.all([
-        fetchProducts(),
-        fetchCategories(),
-      ]);
-      setProducts(productList);
-      setCategories(categoryList);
-    } catch (err) {
-      setError(err.message || "Unable to load products.");
-    } finally {
-      setLoading(false);
-    }
+  function updateParams(updates, resetPage = true) {
+    const next = new URLSearchParams(searchParams);
+    Object.entries(updates).forEach(([key, value]) => {
+      if (value === null || value === "" || value === "all") {
+        next.delete(key);
+      } else {
+        next.set(key, value);
+      }
+    });
+    if (resetPage) next.delete("page");
+    setSearchParams(next);
   }
 
-  useEffect(() => {
-    loadData();
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites));
-  }, [favorites]);
-
-  useEffect(() => {
-    document.documentElement.setAttribute("data-theme", isDarkMode ? "dark" : "light");
-    localStorage.setItem(THEME_KEY, isDarkMode ? "dark" : "light");
-  }, [isDarkMode]);
-
-  function toggleFavorite(productId) {
-    setFavorites((prev) =>
-      prev.includes(productId)
-        ? prev.filter((id) => id !== productId)
-        : [...prev, productId]
-    );
-  }
-
-  const visibleProducts = useMemo(() => {
+  const filteredBeforeCategory = useMemo(() => {
     let result = [...products];
 
-    // Search by title, category, or brand
-    if (searchTerm.trim()) {
-      const term = searchTerm.trim().toLowerCase();
+    if (debouncedSearch.trim()) {
+      const term = debouncedSearch.trim().toLowerCase();
       result = result.filter(
         (product) =>
           product.title.toLowerCase().includes(term) ||
@@ -91,12 +62,39 @@ function Home() {
       );
     }
 
-    // Filter by category
+    if (minPrice !== null) {
+      result = result.filter((product) => product.price >= minPrice);
+    }
+    if (maxPrice !== null) {
+      result = result.filter((product) => product.price <= maxPrice);
+    }
+
+    if (ratingFilter !== "all") {
+      result = result.filter((product) => product.rating >= Number(ratingFilter));
+    }
+
+    return result;
+  }, [products, debouncedSearch, minPrice, maxPrice, ratingFilter]);
+
+  // Category counts are computed from the list BEFORE the category
+  // filter itself is applied, so the dropdown shows accurate counts
+  // for every category regardless of which one is currently selected.
+  const categoryCounts = useMemo(() => {
+    const counts = {};
+    filteredBeforeCategory.forEach((product) => {
+      counts[product.category] = (counts[product.category] || 0) + 1;
+    });
+    return counts;
+  }, [filteredBeforeCategory]);
+
+  const visibleProducts = useMemo(() => {
+    let result = filteredBeforeCategory;
+
     if (selectedCategory !== "all") {
       result = result.filter((product) => product.category === selectedCategory);
     }
 
-    // Sort
+    result = [...result];
     switch (sortOption) {
       case SORT_OPTIONS.PRICE_LOW_HIGH:
         result.sort((a, b) => a.price - b.price);
@@ -115,73 +113,167 @@ function Home() {
     }
 
     return result;
-  }, [products, searchTerm, selectedCategory, sortOption]);
+  }, [filteredBeforeCategory, selectedCategory, sortOption]);
 
-useEffect(() => {
-  setCurrentPage(1);
-}, [searchTerm, selectedCategory, sortOption]);
+  const totalPages = Math.max(1, Math.ceil(visibleProducts.length / perPage));
+  const safePage = Math.min(currentPage, totalPages);
 
-const totalPages = Math.max(1, Math.ceil(visibleProducts.length / PRODUCTS_PER_PAGE));
+  const recentProducts = useMemo(
+    () => products.filter((product) => recentIds.includes(product.id)),
+    [products, recentIds]
+  );
 
-const pagedProducts = useMemo(() => {
-  const start = (currentPage - 1) * PRODUCTS_PER_PAGE;
-  return visibleProducts.slice(start, start + PRODUCTS_PER_PAGE);
-}, [visibleProducts, currentPage]);
+  const pagedProducts = useMemo(() => {
+    const start = (safePage - 1) * perPage;
+    return visibleProducts.slice(start, start + perPage);
+  }, [visibleProducts, safePage, perPage]);
 
-function handlePageChange(page) {
-  setCurrentPage(page);
-  window.scrollTo({ top: 0, behavior: "smooth" });
-}
+  function handlePageChange(page) {
+    updateParams({ page }, false);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function handleToggleCompare(product) {
+    if (comparison.isComparing(product.id)) {
+      comparison.removeFromCompare(product.id);
+    } else {
+      comparison.addToCompare(product);
+    }
+  }
 
   return (
-    <div className="page">
-      <Header
-        favoritesCount={favorites.length}
-        isDarkMode={isDarkMode}
-        onToggleTheme={() => setIsDarkMode((prev) => !prev)}
-      />
+    <main className="page-content">
+      {!loading && !error && (
+        <>
+          <ProductStatistics
+            products={products}
+            categories={categories}
+            favoritesCount={favorites.favoriteIds.length}
+            cartCount={cart.cartCount}
+          />
 
-      <main className="page-content">
-        {!loading && !error && (
-          <div className="toolbar">
-            <SearchBar value={searchTerm} onChange={setSearchTerm} />
-            <div className="toolbar-controls">
-              <CategoryFilter
-                categories={categories}
-                selectedCategory={selectedCategory}
-                onSelectCategory={setSelectedCategory}
+          <div className="toolbar-shell">
+            <div className="toolbar">
+              <SearchBar
+                value={searchTerm}
+                onChange={(value) => updateParams({ search: value })}
               />
-              <SortDropdown value={sortOption} onChange={setSortOption} />
+              <div className="toolbar-controls">
+                <CategoryFilter
+                  categories={categories}
+                  selectedCategory={selectedCategory}
+                  onSelectCategory={(value) => updateParams({ category: value })}
+                  categoryCounts={categoryCounts}
+                  totalCount={filteredBeforeCategory.length}
+                />
+                <RatingFilter
+                  value={ratingFilter}
+                  onChange={(value) => updateParams({ rating: value })}
+                />
+                <SortDropdown
+                  value={sortOption}
+                  onChange={(value) => updateParams({ sort: value })}
+                />
+                <ProductsPerPage
+                  value={perPage}
+                  onChange={(value) => updateParams({ perPage: value })}
+                />
+                <div className="view-toggle" role="group" aria-label="Choose display layout">
+                  <button
+                    className={`btn btn-secondary ${layout === "grid" ? "btn-active" : ""}`}
+                    onClick={() => setLayout("grid")}
+                  >
+                    Grid View
+                  </button>
+                  <button
+                    className={`btn btn-secondary ${layout === "list" ? "btn-active" : ""}`}
+                    onClick={() => setLayout("list")}
+                  >
+                    List View
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
-        )}
 
-        {!loading && !error && (
+          <PriceRangeFilter
+            minPrice={minPrice}
+            maxPrice={maxPrice}
+            onApply={(min, max) => updateParams({ minPrice: min, maxPrice: max })}
+            onClear={() => updateParams({ minPrice: null, maxPrice: null })}
+          />
+
+          {comparison.compareError && (
+            <p className="compare-error-banner">{comparison.compareError}</p>
+          )}
+
           <p className="result-count">
-            {visibleProducts.length} product{visibleProducts.length !== 1 ? "s" : ""} found
+            {visibleProducts.length === 0
+              ? "0 products found"
+              : `Showing ${(safePage - 1) * perPage + 1}–${Math.min(
+                  safePage * perPage,
+                  visibleProducts.length
+                )} of ${visibleProducts.length} product${
+                  visibleProducts.length !== 1 ? "s" : ""
+                }`}
           </p>
-        )}
 
-        {loading && <Loader />}
+          <div className="toolbar-actions">
+            <button className="btn btn-primary" onClick={() => exportProductsToCsv(visibleProducts)}>
+              Export Products
+            </button>
+          </div>
 
-        {!loading && error && <ErrorMessage message={error} onRetry={loadData} />}
-
-        {!loading && !error && (
-          <><ProductGrid
-            products={pagedProducts}
-            favorites={favorites}
-            onToggleFavorite={toggleFavorite}
-            onViewDetails={setSelectedProduct} /><Pagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={handlePageChange} /></>
-        )}
-      </main>
-
-      {selectedProduct && (
-        <ProductModal product={selectedProduct} onClose={() => setSelectedProduct(null)} />
+          {recentProducts.length > 0 && (
+            <section className="recently-viewed-shell">
+              <div className="recently-viewed-header">
+                <h3>Recently Viewed</h3>
+                <button className="btn btn-secondary" onClick={clearRecentlyViewed}>
+                  Clear Recently Viewed
+                </button>
+              </div>
+              <div className="product-grid">
+                {recentProducts.map((product) => (
+                  <ProductGrid
+                    key={`recent-${product.id}`}
+                    products={[product]}
+                    favorites={favorites.favoriteIds}
+                    onToggleFavorite={favorites.toggleFavorite}
+                    onAddToCart={cart.addToCart}
+                    compareIds={comparison.compareItems.map((item) => item.id)}
+                    onToggleCompare={handleToggleCompare}
+                    layout={layout}
+                  />
+                ))}
+              </div>
+            </section>
+          )}
+        </>
       )}
-    </div>
+
+      {loading && <Loader />}
+
+      {!loading && error && <ErrorMessage message={error} onRetry={retry} />}
+
+      {!loading && !error && (
+        <>
+          <ProductGrid
+            products={pagedProducts}
+            favorites={favorites.favoriteIds}
+            onToggleFavorite={favorites.toggleFavorite}
+            onAddToCart={cart.addToCart}
+            compareIds={comparison.compareItems.map((item) => item.id)}
+            onToggleCompare={handleToggleCompare}
+            layout={layout}
+          />
+          <Pagination
+            currentPage={safePage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+          />
+        </>
+      )}
+    </main>
   );
 }
 

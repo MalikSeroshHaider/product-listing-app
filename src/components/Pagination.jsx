@@ -3,9 +3,12 @@ import "./Pagination.css";
 function Pagination({ currentPage, totalPages, onPageChange }) {
   if (totalPages <= 1) return null;
 
+  // Keep the page-number list short on small screens: current page,
+  // its immediate neighbors, and the first/last page, with "…" gaps.
   function getPageNumbers() {
     const pages = [];
     const delta = 1;
+
     for (let page = 1; page <= totalPages; page++) {
       const isEdge = page === 1 || page === totalPages;
       const isNearCurrent = Math.abs(page - currentPage) <= delta;
@@ -31,7 +34,9 @@ function Pagination({ currentPage, totalPages, onPageChange }) {
 
       {getPageNumbers().map((page, index) =>
         page === "..." ? (
-          <span className="page-ellipsis" key={`ellipsis-${index}`}>…</span>
+          <span className="page-ellipsis" key={`ellipsis-${index}`}>
+            …
+          </span>
         ) : (
           <button
             key={page}

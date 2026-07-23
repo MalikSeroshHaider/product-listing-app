@@ -1,0 +1,53 @@
+.confirm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  z-index: 200;
+}
+
+.confirm-dialog {
+  background: var(--card-bg);
+  border-radius: 12px;
+  padding: 1.5rem;
+  max-width: 380px;
+  width: 100%;
+}
+
+.confirm-dialog h3 {
+  margin: 0 0 0.5rem;
+  color: var(--text-color);
+}
+
+.confirm-dialog p {
+  color: var(--text-muted);
+  margin: 0 0 1.25rem;
+  font-size: 0.9rem;
+}
+
+.confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+}
+
+.btn-ghost {
+  background: var(--chip-bg);
+  color: var(--text-color);
+}
+
+.btn-ghost:hover {
+  background: var(--border-color);
+}
+
+.btn-danger {
+  background: var(--danger-color);
+  color: #fff;
+}
+
+.btn-danger:hover {
+  opacity: 0.9;
+}
