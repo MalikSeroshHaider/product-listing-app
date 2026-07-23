@@ -6,18 +6,29 @@ lets users search, filter, sort, and view full details for each product.
 
 ## Features
 
-- **Product grid** — image, title, category, original price, discounted
-  price, rating, and stock status on every card.
-- **Search** — live search across product title, category, and brand as you type.
-- **Category filter** — dropdown populated from the live categories endpoint, with an "All Categories" option.
-- **Sorting** — Price (low→high / high→low), Rating (high→low), Name (A→Z).
-- **Product details modal** — image gallery, description, brand, category,
-  price/discount breakdown, rating, stock, warranty, and shipping info.
-- **Loading state** — animated skeleton cards while data is fetching.
-- **Error handling** — friendly error message with a Retry button if the API call fails.
-- **Empty state** — "No products found" message when search/filters return nothing.
-- **Responsive design** — works on mobile, tablet, laptop, and desktop.
-- **Bonus:** favorites (❤️) saved to Local Storage, and a dark/light theme toggle.
+## Features
+
+- **Product Grid** – Switch between responsive grid and list layouts with the selected view saved in Local Storage.
+- **Product Search** – Live search across product title, category, and brand with debouncing.
+- **Category Filter** – Filter products by category with dynamic product counts.
+- **Price Range Filter** – Filter products using minimum and maximum price.
+- **Rating Filter** – Filter products based on minimum rating.
+- **Sorting** – Sort products by price (Low → High / High → Low), rating, and name.
+- **Pagination** – Adjustable products per page with page navigation.
+- **Product Details** – View complete product information on a dedicated page.
+- **Favorites** – Add or remove products from favorites using Local Storage.
+- **Shopping Cart** – Add products to cart, update quantity, remove items, and view total price.
+- **Product Comparison** – Compare multiple products side by side.
+- **Recently Viewed Products** – Automatically tracks recently viewed products.
+- **Add Product** – Create new products with form validation and Local Storage persistence.
+- **Edit Product** – Update locally created products.
+- **Delete Product** – Remove locally added products.
+- **Export Products** – Export the currently filtered products to CSV.
+- **Responsive Design** – Optimized for desktop, tablet, and mobile devices.
+- **Dark / Light Theme** – Theme preference saved in Local Storage.
+- **Loading & Error States** – Skeleton loaders, retry option, and empty state handling.
+- **Lazy Loaded Routes** – Faster page loading using React.lazy() and Suspense.
+- **URL Search Parameters** – Search, filters, sorting, and pagination are preserved in the URL.
 
 ## Tech Stack
 
@@ -28,24 +39,60 @@ lets users search, filter, sort, and view full details for each product.
 ## Project Structure
 
 ```
-src/
-├── components/
-│   ├── Header.jsx / Header.css
-│   ├── SearchBar.jsx / SearchBar.css
-│   ├── CategoryFilter.jsx / CategoryFilter.css
-│   ├── SortDropdown.jsx
-│   ├── ProductCard.jsx / ProductCard.css
-│   ├── ProductGrid.jsx / ProductGrid.css
-│   ├── ProductModal.jsx / ProductModal.css
-│   ├── Loader.jsx / Loader.css
-│   └── ErrorMessage.jsx / ErrorMessage.css
-├── pages/
-│   └── Home.jsx          # main page — owns all state, composes everything above
-├── services/
-│   └── productApi.js     # fetchProducts(), fetchCategories()
-├── App.jsx
-├── main.jsx
-└── index.css              # design tokens (light/dark), base + responsive styles
+├── src/
+│   │
+│   ├── components/              # Reusable UI components
+│   │   ├── CartItem.jsx
+│   │   ├── CartSummary.jsx
+│   │   ├── CategoryFilter.jsx
+│   │   ├── ConfirmationModal.jsx
+│   │   ├── EmptyState.jsx
+│   │   ├── Header.jsx
+│   │   ├── Pagination.jsx
+│   │   ├── PriceRangeFilter.jsx
+│   │   ├── ProductCard.jsx
+│   │   ├── ProductComparisonTable.jsx
+│   │   ├── ProductForm.jsx
+│   │   ├── ProductGrid.jsx
+│   │   ├── ProductStatistics.jsx
+│   │   ├── ProductsPerPage.jsx
+│   │   ├── RatingFilter.jsx
+│   │   ├── ReviewSection.jsx
+│   │   └── (Component CSS files)
+│   │
+│   ├── hooks/                   # Custom React Hooks
+│   │   ├── useCart.js
+│   │   ├── useComparison.js
+│   │   ├── useDebounce.js
+│   │   ├── useFavorites.js
+│   │   ├── useLocalStorage.js
+│   │   ├── useProducts.js
+│   │   ├── useRecentlyViewed.js
+│   │   └── useTheme.js
+│   │
+│   ├── pages/                   # Application Pages
+│   │   ├── Home.jsx
+│   │   ├── ProductDetails.jsx
+│   │   ├── AddProduct.jsx
+│   │   ├── Cart.jsx
+│   │   ├── Compare.jsx
+│   │   ├── Favorites.jsx
+│   │   └── (Page CSS files)
+│   │
+│   ├── services/                # API communication
+│   │   └── productApi.js
+│   │
+│   ├── utils/                   # Helper functions
+│   │   ├── cartCalculations.js
+│   │   └── csvExport.js
+│   │
+│   ├── test/                    # Unit tests
+│   │   ├── Home.test.jsx
+│   │   └── setup.js
+│   │
+│   ├── App.jsx                  # Main application component
+│   ├── main.jsx                 # Application entry point
+│   └── index.css                # Global styles
 ```
 
 Product details are shown in a **modal** (opened from "View Details"), which
@@ -100,10 +147,13 @@ https://product-listing-app-ebon-three.vercel.app/
   a page refresh.
 ## ScreenShots
 ## Home Page
-![Homepage](public/images/Homepage.png)
+![Homepage](public/images/Homepage.PNG)
 
-## Product Selectio
-![Product Selection](public/images/Selection.png)
+## Product Selection
+![Product Selection](public/images/ProductSelection.PNG)
 
-## Dark Theme
-![Dark Theme](public/images/Dark%20Theme.png)
+### Compare Products
+![Compare](public/images/compare1.PNG)
+
+### Shopping Cart
+![Cart](public/images/Cart.PNG)
