@@ -147,7 +147,7 @@ https://product-listing-app-ebon-three.vercel.app/
   a page refresh.
 ## ScreenShots
 ## Home Page
-![Homepage](public/images/Homepage.PNG)
+![Homepage](public/images/Homepage.png)
 
 ## Product Selection
 ![Product Selection](public/images/ProductSelection.PNG)
